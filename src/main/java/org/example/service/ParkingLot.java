@@ -32,4 +32,21 @@ public class ParkingLot {
         }
         throw new RuntimeException("No available regular spot for car");
     }
+
+    public List<String> park(Motorcycle moto) {
+        if (allocations.containsKey(moto.getId())) {
+            return Collections.singletonList(allocations.get(moto.getId()).getId());
+        }
+
+        for (Row row : rows) {
+            for (ParkingSpot spot : row.getSpots()) {
+                if (spot.isFree()) {
+                    spot.occupy(moto.getId());
+                    allocations.put(moto.getId(), spot);
+                    return Collections.singletonList(spot.getId());
+                }
+            }
+        }
+        throw new RuntimeException("No available spot for motorcycle");
+    }
 }
