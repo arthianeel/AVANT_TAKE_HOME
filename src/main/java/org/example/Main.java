@@ -8,6 +8,8 @@ import org.example.model.Motorcycle;
 import org.example.model.Van;
 import org.example.model.enums.SpotType;
 import org.example.service.ParkingLot;
+import org.example.service.ParkingLotStatus;
+
 import java.util.*;
 
 public class Main {
@@ -26,5 +28,18 @@ public class Main {
         System.out.println("Motorcycle M2 allocated to: " + lot.park(moto1));
         System.out.println("Van V1 allocated to: " + lot.park(van));
         System.out.println("Removing C1: " + lot.remove("C1"));
+        ParkingLotStatus status = lot.getStatus();
+        System.out.println("Total spots: " + status.getTotalSpots());
+        System.out.println("Free spots: " + status.getFreeSpots());
+        System.out.println("Total regular spots: " + status.getRegularTotal());
+        System.out.println("Total compact spots: " + status.getCompactTotal());
+        System.out.println("Regular spots free: " + status.getRegularFree());
+        System.out.println("Compact spots  free: " + status.getCompactFree());
+        System.out.println("Lot full? " + status.isFull());
+        System.out.println("Lot empty? " + status.isEmpty());
+        System.out.println("All regular spots full? " + status.isAllRegularFull());
+        System.out.println("All compact spots  full? " + status.isAllCompactFull());
+        System.out.println("Vans parked: " + status.getVansParked());
+        status.getRowStatuses().forEach(rs -> System.out.println(rs.getRowId() + ": total=" + rs.getTotalSpots() + ", free=" + rs.getFreeSpots()));
     }
 }

@@ -5,6 +5,8 @@ import org.example.model.Motorcycle;
 import org.example.model.Van;
 import org.example.model.enums.SpotType;
 import org.example.service.ParkingLot;
+import org.example.service.ParkingLotStatus;
+import org.example.service.RowStatus;
 import org.junit.jupiter.api.Test;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,9 +15,28 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ParkingLotTest {
 
     @Test
-    public void testCarParksInFirstRegularSpot() {
+    public void testEmptyLotStatus() {
         List<List<SpotType>> config = new ArrayList<>();
         config.add(Arrays.asList(SpotType.REGULAR, SpotType.COMPACT));
+        ParkingLot lot = new ParkingLot(config);
+
+        ParkingLotStatus status = lot.getStatus();
+        assertEquals(2, status.getTotalSpots());
+        assertEquals(2, status.getFreeSpots());
+        assertEquals(1, status.getRegularTotal());
+        assertEquals(1, status.getRegularFree());
+        assertEquals(1, status.getCompactTotal());
+        assertEquals(1, status.getCompactFree());
+        assertTrue(status.isEmpty());
+        assertFalse(status.isFull());
+        assertFalse(status.isAllRegularFull());
+        assertFalse(status.isAllCompactFull());
+        assertEquals(0, status.getVansParked());
+    }
+    @Test
+    public void testCarParksInFirstRegularSpot() {
+        List<List<SpotType>> config = new ArrayList<>();
+        config.add(Arrays.asList(SpotType.REGULAR, SpotType.REGULAR, SpotType.COMPACT));
         ParkingLot lot = new ParkingLot(config);
         Car car = new Car("C1");
 
@@ -23,6 +44,36 @@ public class ParkingLotTest {
 
         assertEquals(1, allocated.size());
         assertEquals("R1-1", allocated.get(0));
+
+        ParkingLotStatus status = lot.getStatus();
+        assertEquals(3, status.getTotalSpots());
+        assertEquals(2, status.getFreeSpots());
+        assertEquals(2, status.getRegularTotal());
+        assertEquals(1, status.getRegularFree());
+        assertEquals(1, status.getCompactTotal());
+        assertEquals(1, status.getCompactFree());
+        assertFalse(status.isFull());
+        assertFalse(status.isEmpty());
+    }
+
+    @Test
+    public void testLotFullStatus() {
+        List<List<SpotType>> config = new ArrayList<>();
+        config.add(Arrays.asList(SpotType.REGULAR, SpotType.COMPACT));
+        ParkingLot lot = new ParkingLot(config);
+
+        Car car = new Car("C1");
+        lot.park(car);
+        Motorcycle moto = new Motorcycle("M1");
+        lot.park(moto);
+
+        ParkingLotStatus status = lot.getStatus();
+        assertEquals(2, status.getTotalSpots());
+        assertEquals(0, status.getFreeSpots());
+        assertTrue(status.isFull());
+        assertFalse(status.isEmpty());
+        assertTrue(status.isAllRegularFull());
+        assertTrue(status.isAllCompactFull());
     }
 
     @Test
@@ -78,6 +129,10 @@ public class ParkingLotTest {
         assertEquals(2, allocated.size());
         assertEquals("R1-1", allocated.get(0));
         assertEquals("R1-2", allocated.get(1));
+        ParkingLotStatus status = lot.getStatus();
+        assertEquals(3, status.getTotalSpots());
+        assertEquals(1, status.getFreeSpots());
+        assertEquals(1, status.getVansParked());
     }
 
     @Test
@@ -123,4 +178,26 @@ public class ParkingLotTest {
         removed = lot.remove("C1");
         assertFalse(removed);
     }
+
+    @Test
+    public void testRowStatusBreakdown() {
+        List<List<SpotType>> config = new ArrayList<>();
+        config.add(Arrays.asList(SpotType.REGULAR, SpotType.REGULAR));
+        config.add(Arrays.asList(SpotType.COMPACT));
+        ParkingLot lot = new ParkingLot(config);
+
+        Car car = new Car("C1");
+        lot.park(car);
+
+        ParkingLotStatus status = lot.getStatus();
+        List<RowStatus> rows = status.getRowStatuses();
+        assertEquals(2, rows.size());
+        assertEquals("R1", rows.get(0).getRowId());
+        assertEquals(2, rows.get(0).getTotalSpots());
+        assertEquals(1, rows.get(0).getFreeSpots());
+        assertEquals("R2", rows.get(1).getRowId());
+        assertEquals(1, rows.get(1).getTotalSpots());
+        assertEquals(1, rows.get(1).getFreeSpots());
+    }
+
 }

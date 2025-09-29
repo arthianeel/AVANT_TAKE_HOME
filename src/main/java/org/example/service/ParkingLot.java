@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.model.*;
+import org.example.model.enums.SpotType;
 import org.example.strategy.*;
 import java.util.*;
 
@@ -39,5 +40,47 @@ public class ParkingLot {
         }
         allocations.remove(vehicleId);
         return true;
+    }
+
+    public ParkingLotStatus getStatus() {
+        int total = 0, free = 0;
+        int regularTotal = 0, regularFree = 0;
+        int compactTotal = 0, compactFree = 0;
+        int vansParked = 0;
+
+        List<RowStatus> rowStatuses = new ArrayList<>();
+
+        int rowIndex = 1;
+        for (Row row : rows) {
+            int rowTotal = 0, rowFree = 0;
+            for (ParkingSpot s : row.getSpots()) {
+                rowTotal++;
+                total++;
+                if (s.getType() == SpotType.REGULAR) regularTotal++;
+                else compactTotal++;
+
+                if (s.isFree()) {
+                    rowFree++;
+                    free++;
+                    if (s.getType() == SpotType.REGULAR) regularFree++;
+                    else compactFree++;
+                }
+            }
+            rowStatuses.add(new RowStatus("R" + rowIndex, rowTotal, rowFree));
+            rowIndex++;
+        }
+
+        for (List<ParkingSpot> allocated : allocations.values()) {
+            if (allocated.size() == 2) vansParked++;
+        }
+
+        boolean isFull = free == 0;
+        boolean isEmpty = free == total;
+        boolean allRegularFull = regularFree == 0;
+        boolean allCompactFull = compactFree == 0;
+
+        return new ParkingLotStatus(total, free, regularTotal, regularFree,
+                compactTotal, compactFree, isFull, isEmpty,
+                allRegularFull, allCompactFull, vansParked, rowStatuses);
     }
 }
