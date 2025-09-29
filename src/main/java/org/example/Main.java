@@ -25,5 +25,6 @@ public class Main {
         System.out.println("Motorcycle M1 allocated to: " + lot.park(moto));
         System.out.println("Motorcycle M2 allocated to: " + lot.park(moto1));
         System.out.println("Van V1 allocated to: " + lot.park(van));
+        System.out.println("Removing C1: " + lot.remove("C1"));
     }
 }

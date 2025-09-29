@@ -18,4 +18,5 @@ public class ParkingSpot {
     public SpotType getType() { return type; }
     public boolean isFree() { return occupiedBy == null; }
     public void occupy(String vehicleId) { this.occupiedBy = vehicleId; }
+    public void free() { this.occupiedBy = null; }
 }

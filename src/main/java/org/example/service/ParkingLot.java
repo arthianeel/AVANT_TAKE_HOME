@@ -31,4 +31,13 @@ public class ParkingLot {
 
         return chosen.stream().map(ParkingSpot::getId).toList();
     }
+
+    public boolean remove(String vehicleId) {
+        if (!allocations.containsKey(vehicleId)) return false;
+        for (ParkingSpot s : allocations.get(vehicleId)) {
+            s.free();
+        }
+        allocations.remove(vehicleId);
+        return true;
+    }
 }
