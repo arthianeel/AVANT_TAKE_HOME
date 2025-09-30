@@ -116,6 +116,14 @@ Decided to follow this project structure because it does a clean separation of c
 - `service/` contains business logic of the system
 - `Main.java` is the entry point for demo/testing.
 
+  **CLASS DIAGRAM**
+
+ <img width="3840" height="1816" alt="Class-diagram-parking-lot _ Mermaid Chart-2025-09-30-024426" src="https://github.com/user-attachments/assets/674c502d-da98-40d1-b35c-4cba23fd0dce" />
+
+ **SEQUENCE DIAGRAM FOR PARKING CAR**
+ <img width="3840" height="2197" alt="Untitled diagram _ Mermaid Chart-2025-09-30-063231" src="https://github.com/user-attachments/assets/c19ecb05-caf1-46d0-a362-6f3b0f7938ed" />
+
+
 ## Testing
 Tests are in `src/test/java/org/example/`:
 - **ParkingLotTest** → validates strategies for Car, Motorcycle, Van.
