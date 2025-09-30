@@ -75,9 +75,11 @@ mvn test
 - **Config-driven strategies**: Vehicle/spot rules could be externalized to a rules engine or config files for more flexibility.
 - **Use Round Robin Allocation** : For better use of space and prevent congestion.
 - **Multi-lot support**: A `ParkingLotManager` could manage multiple lots.
+- **Multi-vehicle support**: Can extend the application to have more vehicles, e.g: Bus
+- **Multiple-spot type Support**: Can add more spot types, e.g: EV, Handicapped
 - **Persistence layer**: Store lot state in a database for durability.
 - **REST API**: Expose parking operations as endpoints for integration with frontends.
-- **Graceful Error Handling**: For the `remove()` operation, we can return a custom exception instead of returning `false`.
+- **Graceful Error Handling**: For the `remove()` operation, we can return a custom exception instead of returning `false`. For `park()` , if no spot is found, we can return a custom exception with status code and detailed error message isntead of a `RuntimeException` 
 ---
 
 ## Why This Design?
