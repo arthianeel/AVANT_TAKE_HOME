@@ -3,7 +3,7 @@
 ## Overview
 This project is a **Parking Lot System** implemented in **Java 17** using **Maven**. It models a parking lot with **rows** and **spots** of type **REGULAR** and **COMPACT**, and supports different vehicle types: **Car**, **Motorcycle**, and **Van**.
 
-The solution follows **Object-Oriented Design principles**, applies the **Strategy Pattern** for vehicle-specific parking rules and allocates in Ro-major order, a deterministic algorithm, and returns structured status information via a **DTO (`ParkingLotStatus`)**.
+The solution follows **Object-Oriented Design principles**, applies the **Strategy Pattern** for vehicle-specific parking rules and allocates in Row-major order, a deterministic algorithm, and returns structured status information via a **DTO (`ParkingLotStatus`)**.
 
 We have also optimized allocation with **HashMaps** for O(1) operations in most cases.
 
@@ -108,7 +108,7 @@ mvn test
 - **Multiple-spot type Support**: Can add more spot types, e.g: EV, Handicapped
 - **Persistence layer**: Store lot state in a database for durability.
 - **REST API**: Expose parking operations as endpoints for integration with frontends.
-- **Graceful Error Handling**: For the `remove()` operation, we can return a custom exception instead of returning `false`. For `park()` , if no spot is found, we can return a custom exception with status code and detailed error message isntead of a `RuntimeException` 
+- **Graceful Error Handling**: For the `remove()` operation, we can return a custom exception instead of returning `false`. For `park()` , if no spot is found, we can return a custom exception with status code and detailed error message instead of a `RuntimeException` 
 ---
 
 ## Project Structure
