@@ -52,7 +52,16 @@ mvn test
 - `Map<SpotType, LinkedHashSet<ParkingSpot>>` stores free spots.
     - Car/Motorcycle allocations use O(1) add/remove.
     - Vans still require a scan for contiguous pairs (O(N)).
-- ✅ Balanced between **performance** and **simplicity**.
+- Balanced between **performance** and **simplicity**.
+  
+  ### Complexity Analysis
+| Operation                  | Complexity | Notes                                   |
+|----------------------------|------------|-----------------------------------------|
+| Car park/remove            | O(1)       | Direct lookup in HashMap + LinkedHashSet |
+| Motorcycle park/remove     | O(1)       | Prefers Compact, fallback Regular        |
+| Van park (2 contiguous)    | O(N)       | Requires row scan for adjacency          |
+| Status (totals/free count) | O(1)       | From tracked HashMap sets                |
+| Status (van count)         | O(N)       | Checks allocations for size == 2         |
 
 ### DTOs
 - **ParkingLotStatus** is a **Data Transfer Object** reporting:
@@ -70,6 +79,26 @@ mvn test
 - Only one thread will call `park()` or `remove()` at a time.
 ---
 
+## Why This Design?
+- **SOLID Principles**  
+  - SRP → Each class handles one concern (e.g., Vehicle ≠ ParkingLot logic).  
+  - OCP → Add new vehicle/strategy without touching ParkingLot.  
+  - DIP → ParkingLot depends only on the ParkingStrategy interface.  
+- **Algorithmic Efficiency** → Optimized Cars/Motorcycles to O(1), deliberately left Vans O(N) for simplicity.  
+- **Extensibility** → Add Trucks or new SpotTypes with minimal changes.  
+- **Clarity** → DTOs (`ParkingLotStatus`, `RowStatus`) cleanly separate state reporting.  
+- **Testability** → JUnit 5 validates strategies, removal, re-parking, and status.
+
+---
+
+  ## Design Trade-offs
+- Chose O(1) allocation for Cars/Motorcycles via HashMap, but left Van allocation O(N) to avoid overengineering.  
+- Used RuntimeException for simplicity; a real system would use typed exceptions with error codes.  
+- Opted for row-major fairness over round-robin or best-fit; simpler but less efficient.  
+- Kept in-memory state for speed and clarity; real-world systems require persistence + concurrency controls.
+
+---
+
 ## Potential Improvements
 - **Allocation DTO**: Instead of returning `List<String>`, introduce an `Allocation` DTO with vehicleId, spots, and status message.
 - **Config-driven strategies**: Vehicle/spot rules could be externalized to a rules engine or config files for more flexibility.
@@ -80,16 +109,6 @@ mvn test
 - **Persistence layer**: Store lot state in a database for durability.
 - **REST API**: Expose parking operations as endpoints for integration with frontends.
 - **Graceful Error Handling**: For the `remove()` operation, we can return a custom exception instead of returning `false`. For `park()` , if no spot is found, we can return a custom exception with status code and detailed error message isntead of a `RuntimeException` 
----
-
-## Why This Design?
-- **SOLID Principles**:
-    - SRP → Each class has a single responsibility.
-    - OCP → Adding a new vehicle/strategy doesn’t modify `ParkingLot`.
-    - DIP → `ParkingLot` depends only on `ParkingStrategy` abstraction.
-- **Extensible** → Adding a `Truck` needing 3 spots just requires a new strategy.
-- **Testable** → JUnit 5 tests validate cars, motorcycles, vans, removal, and status reporting.
-
 ---
 
 ## Project Structure
@@ -126,9 +145,14 @@ Decided to follow this project structure because it does a clean separation of c
  <img width="3840" height="2197" alt="Untitled diagram _ Mermaid Chart-2025-09-30-063231" src="https://github.com/user-attachments/assets/c19ecb05-caf1-46d0-a362-6f3b0f7938ed" />
 
 
-## Testing
-Tests are in `src/test/java/org/example/`:
-- **ParkingLotTest** → validates strategies for Car, Motorcycle, Van.
+## 🧪 Testing
+Tests in `src/test/java/org/example/` cover:
+- ✅ Cars, Motorcycles, Vans allocation strategies  
+- ✅ Edge cases: no spots, full lot, re-parking same vehicle  
+- ✅ Van contiguous allocation (success and failure)  
+- ✅ Status reporting (overall, per-row, vans)  
+- Future: stress test with thousands of vehicles, concurrency tests
+
 
 Run tests:
 ```bash
