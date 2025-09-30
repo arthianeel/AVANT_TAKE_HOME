@@ -7,14 +7,21 @@ import java.util.*;
 
 public class ParkingLot {
     private final List<Row> rows;
-    private final Map<String, List<ParkingSpot>> allocations;
+    private final Map<SpotType, LinkedHashSet<ParkingSpot>> freeSpotsByType = new HashMap<>();
+    private final Map<String, List<ParkingSpot>> allocations = new HashMap<>();
 
-    public ParkingLot(List<List<org.example.model.enums.SpotType>> config) {
+    public ParkingLot(List<List<SpotType>> config) {
         rows = new ArrayList<>();
+        freeSpotsByType.put(SpotType.REGULAR, new LinkedHashSet<>());
+        freeSpotsByType.put(SpotType.COMPACT, new LinkedHashSet<>());
+
         for (int i = 0; i < config.size(); i++) {
-            rows.add(new Row(i + 1, config.get(i)));
+            Row row = new Row(i + 1, config.get(i));
+            rows.add(row);
+            for (ParkingSpot spot : row.getSpots()) {
+                freeSpotsByType.get(spot.getType()).add(spot);
+            }
         }
-        allocations = new HashMap<>();
     }
 
     public List<String> park(Vehicle vehicle) {
@@ -23,22 +30,25 @@ public class ParkingLot {
         }
 
         ParkingStrategy strategy = ParkingStrategyFactory.getStrategy(vehicle);
-        List<ParkingSpot> chosen = strategy.findSpots(rows, vehicle);
+        List<ParkingSpot> chosen = strategy.findSpots(rows, vehicle, freeSpotsByType);
 
         for (ParkingSpot s : chosen) {
             s.occupy(vehicle.getId());
+            freeSpotsByType.get(s.getType()).remove(s); // O(1) removal
         }
-        allocations.put(vehicle.getId(), chosen);
 
+        allocations.put(vehicle.getId(), chosen);
         return chosen.stream().map(ParkingSpot::getId).toList();
     }
 
     public boolean remove(String vehicleId) {
         if (!allocations.containsKey(vehicleId)) return false;
-        for (ParkingSpot s : allocations.get(vehicleId)) {
+
+        List<ParkingSpot> spots = allocations.remove(vehicleId);
+        for (ParkingSpot s : spots) {
             s.free();
+            freeSpotsByType.get(s.getType()).add(s); // O(1) insertion
         }
-        allocations.remove(vehicleId);
         return true;
     }
 
@@ -71,7 +81,9 @@ public class ParkingLot {
         }
 
         for (List<ParkingSpot> allocated : allocations.values()) {
-            if (allocated.size() == 2) vansParked++;
+            if (allocated.size() == 2) {
+                vansParked++;
+            }
         }
 
         boolean isFull = free == 0;

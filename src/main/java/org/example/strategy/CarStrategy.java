@@ -6,14 +6,12 @@ import java.util.*;
 
 public class CarStrategy implements ParkingStrategy {
     @Override
-    public List<ParkingSpot> findSpots(List<Row> rows, Vehicle vehicle) {
-        for (Row row : rows) {
-            for (ParkingSpot spot : row.getSpots()) {
-                if (spot.isFree() && spot.getType() == SpotType.REGULAR) {
-                    return Collections.singletonList(spot);
-                }
-            }
-        }
-        throw new RuntimeException("No available regular spot for car");
+    public List<ParkingSpot> findSpots(List<Row> rows, Vehicle vehicle,
+                                       Map<SpotType, LinkedHashSet<ParkingSpot>> freeSpotsByType) {
+        LinkedHashSet<ParkingSpot> regulars = freeSpotsByType.get(SpotType.REGULAR);
+        if (regulars.isEmpty()) throw new RuntimeException("No available regular spot for car");
+
+        ParkingSpot spot = regulars.iterator().next(); // O(1)
+        return Collections.singletonList(spot);
     }
 }

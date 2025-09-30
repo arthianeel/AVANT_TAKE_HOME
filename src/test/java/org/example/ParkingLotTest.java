@@ -143,7 +143,7 @@ public class ParkingLotTest {
 
         Van van = new Van("V1");
         Exception exception = assertThrows(RuntimeException.class, () -> lot.park(van));
-        assertTrue(exception.getMessage().contains("No available contiguous regular spots for van"));
+        assertTrue(exception.getMessage().contains("No contiguous regular spots for van"));
     }
 
     @Test
