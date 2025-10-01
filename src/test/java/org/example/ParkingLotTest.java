@@ -103,6 +103,7 @@ public class ParkingLotTest {
         assertEquals("R1-2", allocated.get(0));
     }
 
+
     @Test
     public void testNoSpotForMotorcycleThrowsException() {
         List<List<SpotType>> config = new ArrayList<>();
@@ -133,6 +134,21 @@ public class ParkingLotTest {
         assertEquals(3, status.getTotalSpots());
         assertEquals(1, status.getFreeSpots());
         assertEquals(1, status.getVansParked());
+    }
+
+    @Test
+    public void testVanCannotParkAcrossRows() {
+        List<List<SpotType>> config = new ArrayList<>();
+        config.add(Collections.singletonList(SpotType.REGULAR)); // Row 1: only R1-1
+        config.add(Arrays.asList(SpotType.REGULAR, SpotType.COMPACT)); // Row 2: R2-1, R2-2
+
+        ParkingLot lot = new ParkingLot(config);
+
+        Van van = new Van("V1");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> lot.park(van));
+
+        assertEquals("No contiguous regular spots for van", exception.getMessage());
     }
 
     @Test
